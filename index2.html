@@ -1,0 +1,1139 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Slaunchpad - Beta</title>
+<link rel="stylesheet" href="Content/slaunchpad.css" type="text/css" media="screen" />
+<script type="text/javascript">
+var shift = false, caps = false, paused = false, qmode = false, smode = false, mouseD = false, mouseY = 0, knobY = 166, mode = "Column", controls = false;
+var queue = new Array(), lastXY = [new Array(),new Array(),new Array()], queueCount = 0, qlist = new Array(), qtable = "";
+var rec = false, recsound = [new Array(), new Array()], rectime = 0, recloop = false, recPlay = false, recEnd = 0, rechover = false, recpaused = false;
+var pageNumber = 0, temp = null, ctrl = false, foothide = false, feedback = false, lefthide = false, righthide = false, whale = false;
+var localsong = ["getlucky.mp3","tricky.mp3","spectrum.mp3","staythenight.mp3","clarity.mp3","dontworry.mp3","iloveit.mp3","roar.mp3","sweetnothing.mp3","needyourlove.mp3",
+	"trouble.mp3","blow.mp3","dieyoung.mp3","wildones.mp3","summersad.mp3","fun.mp3","stronger.mp3","cantholdus.mp3","wreckingball.mp3","playhard.mp3","sweetcarol.mp3",
+	"dontstopbelieving.mp3","canttouch.mp3","feelthismoment.mp3","bass.mp3","kick.wav","snare.wav","hat.wav","voice.wav","angtft.wav","lead.wav","lead2.wav","kickbig.wav",
+	"meow.wav","damn.wav","lucas.wav","zerosuit.wav","chord1.wav","chord2.wav","chord3.wav","chord4.wav","ch1.wav","ch2.wav","ch3.wav","ch4.wav","omg.wav","funkymix.mp3"];
+localsong.sort();
+var lastcp = "", dMode = false, upload = [new Array(), new Array()], upCount = 0, upPos = [blank(null)];
+var page2 = [
+    [new Audio("bass.mp3"),new Audio("kick.wav"),new Audio("snare.wav"),new Audio("hat.wav"),new Audio("voice.wav"),null,null,null],
+	[null,null,null,null,new Audio("angtft.wav"),null,null,null],
+	[new Audio("lead2.wav"),null,null,null,null,null,null,new Audio("lead2.wav")],
+	[new Audio("lead.wav"),null,null,null,null,null,null,new Audio("lead.wav")],
+	[new Audio("chord4.wav"),new Audio("ch4.wav"),new Audio("kickbig.wav"),null,null,null,null,null],
+	[new Audio("chord3.wav"),new Audio("ch3.wav"),new Audio("kickbig.wav"),null,null,null,null,null],
+	[new Audio("chord2.wav"),new Audio("ch2.wav"),new Audio("snare.wav"),new Audio("hat.wav"),null,null,null,null],
+	[new Audio("chord1.wav"),new Audio("ch1.wav"),new Audio("kick.wav"),new Audio("snare.wav"),new Audio("voice.wav"),null,null,null]
+];
+var isPaused = new Array();
+var page = [page2];
+var sound = page[0];
+var vol = .7;
+function initPause(){ //initializes isPaused array
+	for (p=0;p<page.length;p++){
+		isPaused[p] = new Array();
+		for (i=0;i<8;i++){
+			isPaused[p][i] = new Array();
+			for (n=0;n<8;n++){
+				isPaused[p][i][n] = false;
+			}
+		}
+	}
+}
+function hover(x,y){ //triggered by onmouseover
+	if (y<8){
+		if (sound[x][y]&&sound[x][y].paused){
+			document.getElementById(x+""+y).style.backgroundPosition = '-58px 0px'; //makes button yellow
+			var n = "";
+			if (!upPos[pageNumber][x][y]){
+				n = sound[x][y].currentSrc;
+				n = "<b>Hovered:</b> "+n.slice(n.lastIndexOf("/")+1, n.lastIndexOf("."));
+			}else{
+				n = upload[1][upPos[pageNumber][x][y]];
+				n = "<b>Hovered:</b> "+n.slice(0, n.lastIndexOf("."));
+			}
+			document.getElementById("hsong").innerHTML = n; //displays hovered song
+			hideLeft(false);
+		}
+	}else{document.getElementById(x+""+y).style.backgroundPosition = '-60px 0px';}
+}
+function leave(x,y){ //triggered by onmouseout
+	if (y<8){
+		if (sound[x][y]&&sound[x][y].paused){
+			document.getElementById(x+""+y).style.backgroundPosition = '0px 0px';
+			document.getElementById("hsong").innerHTML = "<b>Hovered:</b> none";
+			hideLeft(false);
+		}
+	}else{document.getElementById(x+""+y).style.backgroundPosition = '0px 0px';}
+}
+function getOp(x,y){//determines what operation to perform on user click
+	if(qmode&&!smode){
+		setQueue(x,y);
+	}else if(smode&&!qmode){
+		stop(x,y);
+	}else{
+		play(x,y);
+	}
+}
+function play(x,y){ //plays sound onclick or onkeydown
+	setPaused(false);
+	if (y<8&&sound[x][y]){
+		stop(x,y);
+		sound[x][y].volume = vol;
+		if (!isPaused[pageNumber][x][y]){
+			sound[x][y].currentTime = 0;
+		}
+		sound[x][y].play();
+		if (rec&&sound[x][y]){record(x,y);}
+		isPaused[pageNumber][x][y] = false;
+		document.getElementById(x+""+y).style.backgroundPosition = '-116px 0px'; //makes image green
+		if (page[pageNumber][x][y]!=queue[0]){clearQueue();}
+		if (queueCount==0){
+			queue[0] = page[pageNumber][x][y];
+			lastXY[0][0] = pageNumber;
+			lastXY[1][0] = x;
+			lastXY[2][0] = y;
+		}
+		if (!upPos[pageNumber][x][y]){setSong(sound[x][y].currentSrc, false);}
+		else{setSong(upload[1][upPos[pageNumber][x][y]], true);}
+		var length = Math.floor(sound[x][y].duration);
+		var lm = Math.floor(length / 60);
+		var ls = Math.floor(length % 60);
+		document.getElementById("length").innerHTML = "<b>Length: </b>"+lm+":"+(ls<10? "0":"")+ls; //displays audio length
+		page[pageNumber][x][y].addEventListener('ended', function() { //makes image white and time 0 on song end
+			document.getElementById(x+""+y).style.backgroundPosition = '0px 0px';
+			document.getElementById("time").innerHTML = "<b>Time: </b> 0:00";
+			this.removeEventListener('ended',arguments.callee,false);
+			this.removeEventListener('timeupdate', timeUpdate, false);
+		}, false);
+		page[pageNumber][x][y].addEventListener('timeupdate', timeUpdate, false);
+	}else if(y==8&&mode!="Row"){ //plays entire row
+		if (mode=="Column"){stopAll();}
+		document.getElementById(x+""+y).style.backgroundPosition = '-120px 0px';
+		for (i=0;i<8;i++){
+			if (sound[x][i]){
+				sound[x][i].volume = vol;
+				sound[x][i].currentTime = 0;
+				sound[x][i].play();
+				document.getElementById(x+""+i).style.backgroundPosition = '-116px 0px';
+			}
+		}
+		if (rec){record(x,y);}
+		setTimeout(function(){resetRow(x);}, 1000);
+	}else if(!sound[x][y]){stop(x,y);}
+}
+function resetRow(x){ //makes end row image white
+	document.getElementById(x+"8").style.backgroundPosition = '0px 0px';
+}
+function pause(){ //pauses playing audio
+	if (!paused){
+		for (p=0;p<page.length;p++){
+			for (i=0;i<8;i++){
+				for (n=0;n<8;n++){
+					if (page[p][i][n]&&!page[p][i][n].paused&&!isPaused[p][i][n]){
+						page[p][i][n].pause();
+						isPaused[p][i][n] = true;
+						if (p==pageNumber){document.getElementById(i+""+n).style.backgroundPosition = '-58px 0px';}
+					}
+				}
+			}
+		}
+		setPaused(true);
+	}else if (paused){
+		for (p=0;p<page.length;p++){
+			for (i=0;i<8;i++){
+				for (n=0;n<8;n++){
+					if (page[p][i][n]&&isPaused[p][i][n]){
+						page[p][i][n].play();
+						isPaused[p][i][n] = false;
+						if (p==pageNumber){document.getElementById(i+""+n).style.backgroundPosition = '-116px 0px';}
+					}
+				}
+			}
+		}
+		setPaused(false);
+	}
+}
+function stopAll(){ //stops all audio
+	clearQueue();
+	if (temp){temp.pause();}
+	setPaused(false);
+	for (p=0;p<page.length;p++){
+		for (i=0;i<8;i++){
+			for (n=0;n<9;n++){
+			if(n<8){
+					if(page[p][i][n]){
+						page[p][i][n].pause();
+						if(recPlay){recPlay = false;}
+						isPaused[p][i][n] = false;
+					}
+				}
+			document.getElementById(i+""+n).style.backgroundPosition = '0px 0px';
+			}
+		}
+	}
+	document.getElementById("time").innerHTML = "<b>Time: </b> 0:00";
+}
+function draw(){ //initializes buttons
+	var a = "";
+	for (i=0;i<8;i++){
+		for (x=0;x<8;x++){
+			if (i<7){
+				if (x<7){
+					a += "<span onmouseout='leave("+i+","+x+")'onmouseover='hover("+i+","+x+")'onmousedown='getOp("+i+","+x+")'id='"+i+""+x+"'class='button'></span><span class='Vbox'></span>";
+				}else{
+					a += "<span onmouseout='leave("+i+","+x+")'onmouseover='hover("+i+","+x+")'onmousedown='getOp("+i+","+x+")'id='"+i+""+x+"'class='button'></span><span onmouseout='leave("+i+",8)'onmouseover='hover("+i+",8)'onmousedown='play("+i+",8)'id='"+i+"8'class='play'></span><br /><span class='Hbox'></span><br />";
+				}
+			}else{
+				if (x<7){
+					a += "<span onmouseout='leave("+i+","+x+")'onmouseover='hover("+i+","+x+")'onmousedown='getOp("+i+","+x+")'id='"+i+""+x+"'class='button'></span><span class='Vbox'></span>";
+				}else{
+					a += "<span onmouseout='leave("+i+","+x+")'onmouseover='hover("+i+","+x+")'onmousedown='getOp("+i+","+x+")'id='"+i+""+x+"'class='button'></span><span onmouseout='leave("+i+",8)'onmouseover='hover("+i+",8)'onmousedown='play("+i+",8)'id='"+i+"8'class='play'></span>";
+				}
+			}
+		}
+	}
+	document.getElementById("map").innerHTML = a;
+}
+function keyPress(){ //NOT USED refer to keyDown
+
+var x;
+if(window.event) // IE8 and earlier
+	{
+	x=event.keyCode;
+	}
+else if(event.which) // IE9/Firefox/Chrome/Opera/Safari
+	{
+	x=event.which;
+	}
+keychar=String.fromCharCode(x);
+if (keychar == "!"){play(0,0);}else if (keychar == "@"){play(0,1);}else if (keychar == "#"){play(0,2);}else if (keychar == "$"){play(0,3);}else if (keychar == "%"){play(0,4);}else if (keychar == "^"){play(0,5);}else if (keychar == "&"){play(0,6);}else if (keychar == "*"){play(0,7);}else if (keychar == "("){play(0,8);}
+else if (keychar == "Q"){play(1,0);}else if (keychar == "W"){play(1,1);}else if (keychar == "E"){play(1,2);}else if (keychar == "R"){play(1,3);}else if (keychar == "T"){play(1,4);}else if (keychar == "Y"){play(1,5);}else if (keychar == "U"){play(1,6);}else if (keychar == "I"){play(1,7);}else if (keychar == "O"){play(1,8);}else if (keychar == "p"||keychar == "P"){pause();}
+else if (keychar == "A"){play(2,0);}else if (keychar == "S"){play(2,1);}else if (keychar == "D"){play(2,2);}else if (keychar == "F"){play(2,3);}else if (keychar == "G"){play(2,4);}else if (keychar == "H"){play(2,5);}else if (keychar == "J"){play(2,6);}else if (keychar == "K"){play(2,7);}else if (keychar == "L"){play(2,8);}else if (keychar == "0"){vol = .7}
+else if (keychar == "Z"){play(3,0);}else if (keychar == "X"){play(3,1);}else if (keychar == "C"){play(3,2);}else if (keychar == "V"){play(3,3);}else if (keychar == "B"){play(3,4);}else if (keychar == "N"){play(3,5);}else if (keychar == "M"){play(3,6);}else if (keychar == "<"){play(3,7);}else if (keychar == ">"){play(3,8);}
+else if (keychar == "1"){play(4,0);}else if (keychar == "2"){play(4,1);}else if (keychar == "3"){play(4,2);}else if (keychar == "4"){play(4,3);}else if (keychar == "5"){play(4,4);}else if (keychar == "6"){play(4,5);}else if (keychar == "7"){play(4,6);}else if (keychar == "8"){play(4,7);}else if (keychar == "9"){play(4,8);}
+else if (keychar == "q"){play(5,0);}else if (keychar == "w"){play(5,1);}else if (keychar == "e"){play(5,2);}else if (keychar == "r"){play(5,3);}else if (keychar == "t"){play(5,4);}else if (keychar == "y"){play(5,5);}else if (keychar == "u"){play(5,6);}else if (keychar == "i"){play(5,7);}else if (keychar == "o"){play(5,8);}
+else if (keychar == "a"){play(6,0);}else if (keychar == "s"){play(6,1);}else if (keychar == "d"){play(6,2);}else if (keychar == "f"){play(6,3);}else if (keychar == "g"){play(6,4);}else if (keychar == "h"){play(6,5);}else if (keychar == "j"){play(6,6);}else if (keychar == "k"){play(6,7);}else if (keychar == "l"){play(6,8);}
+else if (keychar == "z"){play(7,0);}else if (keychar == "x"){play(7,1);}else if (keychar == "c"){play(7,2);}else if (keychar == "v"){play(7,3);}else if (keychar == "b"){play(7,4);}else if (keychar == "n"){play(7,5);}else if (keychar == "m"){play(7,6);}else if (keychar == ","){play(7,7);}else if (keychar == "."){play(7,8);}
+else if (keychar == " "){stopAll();}
+}
+function release(event){ //makes hold only keys false
+
+	var x;
+	if(window.event) // IE8 and earlier
+		{
+		x=event.keyCode;
+		}
+	else if(event.which) // IE9/Firefox/Chrome/Opera/Safari
+		{
+		x=event.which;
+		}
+	keychar=String.fromCharCode(x);
+	if (x==16){shift = false;document.getElementById("shift").innerHTML = "<b>Shift:</b> Off";}
+	else if (x == 17){ctrl = false;}
+	else if (keychar == "0"){setQmode(false);}
+	else if (x == 186){setSmode(false);}
+}
+function keyDown(event){ //refers to all keyboard input
+
+	var x;
+	if(window.event) // IE8 and earlier
+		{
+		x=window.event.keyCode;
+		}
+	else if(event.which) // IE9/Firefox/Chrome/Opera/Safari
+		{
+		x=event.which;
+		}
+	keychar=String.fromCharCode(x);
+	var bot = (!shift&&!caps)||(shift&&caps);
+	if (bot&&!qmode&&!smode&&!dMode){ //bottom normal
+		if (keychar == "1"){play(4,0);}else if (keychar == "2"){play(4,1);}else if (keychar == "3"){play(4,2);}else if (keychar == "4"){play(4,3);}else if (keychar == "5"){play(4,4);}else if (keychar == "6"){play(4,5);}else if (keychar == "7"){play(4,6);}else if (keychar == "8"){play(4,7);}else if (keychar == "9"){play(4,8);}
+		else if (keychar == "Q"){play(5,0);}else if (keychar == "W"){play(5,1);}else if (keychar == "E"){play(5,2);}else if (keychar == "R"){play(5,3);}else if (keychar == "T"){play(5,4);}else if (keychar == "Y"){play(5,5);}else if (keychar == "U"){play(5,6);}else if (keychar == "I"){play(5,7);}else if (keychar == "O"){play(5,8);}
+		else if (keychar == "A"){play(6,0);}else if (keychar == "S"){play(6,1);}else if (keychar == "D"){play(6,2);}else if (keychar == "F"){play(6,3);}else if (keychar == "G"){play(6,4);}else if (keychar == "H"){play(6,5);}else if (keychar == "J"){play(6,6);}else if (keychar == "K"){play(6,7);}else if (keychar == "L"){play(6,8);}
+		else if (keychar == "Z"){play(7,0);}else if (keychar == "X"){play(7,1);}else if (keychar == "C"){play(7,2);}else if (keychar == "V"){play(7,3);}else if (keychar == "B"){play(7,4);}else if (keychar == "N"){play(7,5);}else if (keychar == "M"){play(7,6);}else if (keychar == "¼"){play(7,7);}else if (keychar == "¾"){play(7,8);}
+	}else if (!bot&&!qmode&&!smode&&!dMode){ //top normal
+		if (keychar == "1"){play(0,0);}else if (keychar == "2"){play(0,1);}else if (keychar == "3"){play(0,2);}else if (keychar == "4"){play(0,3);}else if (keychar == "5"){play(0,4);}else if (keychar == "6"){play(0,5);}else if (keychar == "7"){play(0,6);}else if (keychar == "8"){play(0,7);}else if (keychar == "9"){play(0,8);}
+		else if (keychar == "Q"){play(1,0);}else if (keychar == "W"){play(1,1);}else if (keychar == "E"){play(1,2);}else if (keychar == "R"){play(1,3);}else if (keychar == "T"){play(1,4);}else if (keychar == "Y"){play(1,5);}else if (keychar == "U"){play(1,6);}else if (keychar == "I"){play(1,7);}else if (keychar == "O"){play(1,8);}
+		else if (keychar == "A"){play(2,0);}else if (keychar == "S"){play(2,1);}else if (keychar == "D"){play(2,2);}else if (keychar == "F"){play(2,3);}else if (keychar == "G"){play(2,4);}else if (keychar == "H"){play(2,5);}else if (keychar == "J"){play(2,6);}else if (keychar == "K"){play(2,7);}else if (keychar == "L"){play(2,8);}
+		else if (keychar == "Z"){play(3,0);}else if (keychar == "X"){play(3,1);}else if (keychar == "C"){play(3,2);}else if (keychar == "V"){play(3,3);}else if (keychar == "B"){play(3,4);}else if (keychar == "N"){play(3,5);}else if (keychar == "M"){play(3,6);}else if (keychar == "¼"){play(3,7);}else if (keychar == "¾"){play(3,8);}
+	}else if (bot&&qmode&&!smode&&!dMode){ //bottom Queue
+		if (keychar == "1"){setQueue(4,0);}else if (keychar == "2"){setQueue(4,1);}else if (keychar == "3"){setQueue(4,2);}else if (keychar == "4"){setQueue(4,3);}else if (keychar == "5"){setQueue(4,4);}else if (keychar == "6"){setQueue(4,5);}else if (keychar == "7"){setQueue(4,6);}else if (keychar == "8"){setQueue(4,7);}
+		else if (keychar == "Q"){setQueue(5,0);}else if (keychar == "W"){setQueue(5,1);}else if (keychar == "E"){setQueue(5,2);}else if (keychar == "R"){setQueue(5,3);}else if (keychar == "T"){setQueue(5,4);}else if (keychar == "Y"){setQueue(5,5);}else if (keychar == "U"){setQueue(5,6);}else if (keychar == "I"){setQueue(5,7);}
+		else if (keychar == "A"){setQueue(6,0);}else if (keychar == "S"){setQueue(6,1);}else if (keychar == "D"){setQueue(6,2);}else if (keychar == "F"){setQueue(6,3);}else if (keychar == "G"){setQueue(6,4);}else if (keychar == "H"){setQueue(6,5);}else if (keychar == "J"){setQueue(6,6);}else if (keychar == "K"){setQueue(6,7);}
+		else if (keychar == "Z"){setQueue(7,0);}else if (keychar == "X"){setQueue(7,1);}else if (keychar == "C"){setQueue(7,2);}else if (keychar == "V"){setQueue(7,3);}else if (keychar == "B"){setQueue(7,4);}else if (keychar == "N"){setQueue(7,5);}else if (keychar == "M"){setQueue(7,6);}else if (keychar == "¼"){setQueue(7,7);}
+	}else if (!bot&&qmode&&!smode&&!dMode){ //top Queue
+		if (keychar == "1"){setQueue(0,0);}else if (keychar == "2"){setQueue(0,1);}else if (keychar == "3"){setQueue(0,2);}else if (keychar == "4"){setQueue(0,3);}else if (keychar == "5"){setQueue(0,4);}else if (keychar == "6"){setQueue(0,5);}else if (keychar == "7"){setQueue(0,6);}else if (keychar == "8"){setQueue(0,7);}
+		else if (keychar == "Q"){setQueue(1,0);}else if (keychar == "W"){setQueue(1,1);}else if (keychar == "E"){setQueue(1,2);}else if (keychar == "R"){setQueue(1,3);}else if (keychar == "T"){setQueue(1,4);}else if (keychar == "Y"){setQueue(1,5);}else if (keychar == "U"){setQueue(1,6);}else if (keychar == "I"){setQueue(1,7);}
+		else if (keychar == "A"){setQueue(2,0);}else if (keychar == "S"){setQueue(2,1);}else if (keychar == "D"){setQueue(2,2);}else if (keychar == "F"){setQueue(2,3);}else if (keychar == "G"){setQueue(2,4);}else if (keychar == "H"){setQueue(2,5);}else if (keychar == "J"){setQueue(2,6);}else if (keychar == "K"){setQueue(2,7);}
+		else if (keychar == "Z"){setQueue(3,0);}else if (keychar == "X"){setQueue(3,1);}else if (keychar == "C"){setQueue(3,2);}else if (keychar == "V"){setQueue(3,3);}else if (keychar == "B"){setQueue(3,4);}else if (keychar == "N"){setQueue(3,5);}else if (keychar == "M"){setQueue(3,6);}else if (keychar == "¼"){setQueue(3,7);}
+	}else if (bot&&!qmode&&smode&&!dMode){ //bottom Stop
+		if (keychar == "1"){stop(4,0);}else if (keychar == "2"){stop(4,1);}else if (keychar == "3"){stop(4,2);}else if (keychar == "4"){stop(4,3);}else if (keychar == "5"){stop(4,4);}else if (keychar == "6"){stop(4,5);}else if (keychar == "7"){stop(4,6);}else if (keychar == "8"){stop(4,7);}else if (keychar == "9"){stop(4,8);}
+		else if (keychar == "Q"){stop(5,0);}else if (keychar == "W"){stop(5,1);}else if (keychar == "E"){stop(5,2);}else if (keychar == "R"){stop(5,3);}else if (keychar == "T"){stop(5,4);}else if (keychar == "Y"){stop(5,5);}else if (keychar == "U"){stop(5,6);}else if (keychar == "I"){stop(5,7);}else if (keychar == "O"){stop(5,8);}
+		else if (keychar == "A"){stop(6,0);}else if (keychar == "S"){stop(6,1);}else if (keychar == "D"){stop(6,2);}else if (keychar == "F"){stop(6,3);}else if (keychar == "G"){stop(6,4);}else if (keychar == "H"){stop(6,5);}else if (keychar == "J"){stop(6,6);}else if (keychar == "K"){stop(6,7);}else if (keychar == "L"){stop(6,8);}
+		else if (keychar == "Z"){stop(7,0);}else if (keychar == "X"){stop(7,1);}else if (keychar == "C"){stop(7,2);}else if (keychar == "V"){stop(7,3);}else if (keychar == "B"){stop(7,4);}else if (keychar == "N"){stop(7,5);}else if (keychar == "M"){stop(7,6);}else if (keychar == "¼"){stop(7,7);}else if (keychar == "¾"){stop(7,8);}
+	}else if (!bot&&!qmode&&smode&&!dMode){//top Stop
+		if (keychar == "1"){stop(0,0);}else if (keychar == "2"){stop(0,1);}else if (keychar == "3"){stop(0,2);}else if (keychar == "4"){stop(0,3);}else if (keychar == "5"){stop(0,4);}else if (keychar == "6"){stop(0,5);}else if (keychar == "7"){stop(0,6);}else if (keychar == "8"){stop(0,7);}else if (keychar == "9"){stop(0,8);}
+		else if (keychar == "Q"){stop(1,0);}else if (keychar == "W"){stop(1,1);}else if (keychar == "E"){stop(1,2);}else if (keychar == "R"){stop(1,3);}else if (keychar == "T"){stop(1,4);}else if (keychar == "Y"){stop(1,5);}else if (keychar == "U"){stop(1,6);}else if (keychar == "I"){stop(1,7);}else if (keychar == "O"){stop(1,8);}
+		else if (keychar == "A"){stop(2,0);}else if (keychar == "S"){stop(2,1);}else if (keychar == "D"){stop(2,2);}else if (keychar == "F"){stop(2,3);}else if (keychar == "G"){stop(2,4);}else if (keychar == "H"){stop(2,5);}else if (keychar == "J"){stop(2,6);}else if (keychar == "K"){stop(2,7);}else if (keychar == "L"){stop(2,8);}
+		else if (keychar == "Z"){stop(3,0);}else if (keychar == "X"){stop(3,1);}else if (keychar == "C"){stop(3,2);}else if (keychar == "V"){stop(3,3);}else if (keychar == "B"){stop(3,4);}else if (keychar == "N"){stop(3,5);}else if (keychar == "M"){stop(3,6);}else if (keychar == "¼"){stop(3,7);}else if (keychar == "¾"){stop(3,8);}
+	}else if (bot&&!qmode&&!smode&&dMode){ //bottom drag
+		if (keychar == "1"){play(4,0);}else if (keychar == "2"){play(4,1);}else if (keychar == "3"){play(4,2);}else if (keychar == "4"){play(4,3);}else if (keychar == "5"){play(4,4);}else if (keychar == "6"){play(4,5);}else if (keychar == "7"){play(4,6);}else if (keychar == "8"){play(4,7);}else if (keychar == "9"){play(4,8);}
+		else if (keychar == "Q"){play(5,0);}else if (keychar == "W"){play(5,1);}else if (keychar == "E"){play(5,2);}else if (keychar == "R"){play(5,3);}else if (keychar == "T"){play(5,4);}else if (keychar == "Y"){play(5,5);}else if (keychar == "U"){play(5,6);}else if (keychar == "I"){play(5,7);}else if (keychar == "O"){play(5,8);}
+		else if (keychar == "A"){play(6,0);}else if (keychar == "S"){play(6,1);}else if (keychar == "D"){play(6,2);}else if (keychar == "F"){play(6,3);}else if (keychar == "G"){play(6,4);}else if (keychar == "H"){play(6,5);}else if (keychar == "J"){play(6,6);}else if (keychar == "K"){play(6,7);}else if (keychar == "L"){play(6,8);}
+		else if (keychar == "Z"){play(7,0);}else if (keychar == "X"){play(7,1);}else if (keychar == "C"){play(7,2);}else if (keychar == "V"){play(7,3);}else if (keychar == "B"){play(7,4);}else if (keychar == "N"){play(7,5);}else if (keychar == "M"){play(7,6);}else if (keychar == "¼"){play(7,7);}else if (keychar == "¾"){play(7,8);}
+	}else if (!bot&&!qmode&&!smode&&dMode){ //top drag
+		if (keychar == "1"){play(0,0);}else if (keychar == "2"){play(0,1);}else if (keychar == "3"){play(0,2);}else if (keychar == "4"){play(0,3);}else if (keychar == "5"){play(0,4);}else if (keychar == "6"){play(0,5);}else if (keychar == "7"){play(0,6);}else if (keychar == "8"){play(0,7);}else if (keychar == "9"){play(0,8);}
+		else if (keychar == "Q"){play(1,0);}else if (keychar == "W"){play(1,1);}else if (keychar == "E"){play(1,2);}else if (keychar == "R"){play(1,3);}else if (keychar == "T"){play(1,4);}else if (keychar == "Y"){play(1,5);}else if (keychar == "U"){play(1,6);}else if (keychar == "I"){play(1,7);}else if (keychar == "O"){play(1,8);}
+		else if (keychar == "A"){play(2,0);}else if (keychar == "S"){play(2,1);}else if (keychar == "D"){play(2,2);}else if (keychar == "F"){play(2,3);}else if (keychar == "G"){play(2,4);}else if (keychar == "H"){play(2,5);}else if (keychar == "J"){play(2,6);}else if (keychar == "K"){play(2,7);}else if (keychar == "L"){play(2,8);}
+		else if (keychar == "Z"){play(3,0);}else if (keychar == "X"){play(3,1);}else if (keychar == "C"){play(3,2);}else if (keychar == "V"){play(3,3);}else if (keychar == "B"){play(3,4);}else if (keychar == "N"){play(3,5);}else if (keychar == "M"){play(3,6);}else if (keychar == "¼"){play(3,7);}else if (keychar == "¾"){play(3,8);}
+	}
+	if (keychar == "&"){volumeChange(.05, true);}else if (keychar == "("){volumeChange(-.05, true);}
+	else if (keychar == " "){stopAll();}
+	else if (keychar == "P"){pause();}
+	else if (keychar == "0"){setQmode(true);}
+	else if (x == 186){setSmode(true);}
+	else if (x == 16){shift = true;document.getElementById("shift").innerHTML = "<b>Shift:</b> On";}
+	else if (x == 17){ctrl = true;}
+	else if (x == 20&&caps){caps = false;document.getElementById("caps").innerHTML = "<b>Caps:</b> Off";}
+	else if (x == 20&&!caps){caps = true;document.getElementById("caps").innerHTML = "<b>Caps:</b> On";}
+	else if (x == 33){pageUp();}
+	else if (x == 34){pageDown();}
+	else if (keychar == "\'"){timeChange(10, true);} //skip ahead 10 seconds
+	else if (keychar == "%"){timeChange(-10, true);} //go back 10 seconds
+	else if (keychar == "½"){timeChange(-.469, true);}
+}
+function setPaused(x){ //set paused mode
+	paused = x;
+	if (paused&&recPlay){recpaused = !recpaused;} //pauses recording if its playing
+	if(paused){document.getElementById("paused").innerHTML = "<b>Paused:</b> Yes";}
+	else{document.getElementById("paused").innerHTML = "<b>Paused:</b> No";}
+}
+function setSong(x,y){ //displays current audio
+	var n = x;
+	if (!y){n = "<b>Song:</b> "+n.slice(n.lastIndexOf("/")+1, n.length);}
+	else{n = "<b>Song:</b> "+n;}
+	document.getElementById("song").innerHTML = n;
+	hideLeft(false);
+}
+function setQmode(x){ //sets Queue Mode
+	qmode = x;
+	if (qmode){document.getElementById("qmode").innerHTML = "<b>Queue Mode:</b> Yes";smode = false;}
+	else{document.getElementById("qmode").innerHTML = "<b>Queue Mode:</b> No";}
+}
+function setSmode(x){ //sets Stop Mode
+	smode = x;
+	if (smode){document.getElementById("smode").innerHTML = "<b>Stop Mode:</b> Yes";qmode = false;}
+	else{document.getElementById("smode").innerHTML = "<b>Stop Mode:</b> No";}
+}
+function setQueue(x,y){ //queues a clip
+	if (page[pageNumber][x][y]&&queue[queue.length-1]&&!queue[0].ended&&queueCount<20){
+		if (queueCount==0){queue[0].addEventListener('ended', playQueue, false);}
+		queueCount++;
+		document.getElementById("qc").innerHTML = "<b>QC:</b> "+queueCount;
+		var n = "";
+		if (!upPos[pageNumber][x][y]){
+			n = sound[x][y].currentSrc;
+			n = n.slice(n.lastIndexOf("/")+1, n.length);
+		}else{n = upload[1][upPos[pageNumber][x][y]];}
+		qlist.push("<tr><th>Num. </th><td>"+n+"</td><td><input type='button'value='X'onclick='removeQueue(Row)' /></td></tr>");
+		setTable();
+		queue.push(sound[x][y]);
+		lastXY[0].push(pageNumber);
+		lastXY[1].push(x);
+		lastXY[2].push(y);
+	}
+}
+function clearQueue(){ //clears all queued clips
+	blur();
+	if (queueCount!=0){
+		queue[0].removeEventListener('ended', playQueue, false);
+		document.getElementById("qlist").innerHTML = "";
+		hideRight(false);
+		qtable = "";
+		queue = new Array();
+		lastXY = [new Array(),new Array(),new Array()];
+		qlist = new Array();
+		queueCount = 0;
+		document.getElementById("qc").innerHTML = "<b>QC:</b> "+queueCount;
+	}
+}
+function playQueue(){ //plays next song in queue
+	qlist.shift();
+	setTable();
+	queue.shift();
+	lastXY[0].shift();
+	lastXY[1].shift();
+	lastXY[2].shift();
+	if (lastXY[0][0]==pageNumber){
+		play(lastXY[1][0],lastXY[2][0]);
+	}else{ //play off page clip
+		var song = page[lastXY[0][0]][lastXY[1][0]][lastXY[2][0]];
+		var cpage = lastXY[0][0];
+		song.play();
+		if (!upPos[lastXY[0][0]][lastXY[1][0]][lastXY[2][0]]){
+			setSong(song.currentSrc, false);
+		}else{setSong(upload[1][upPos[lastXY[0][0]][lastXY[1][0]][lastXY[2][0]]], true);}
+		var length = Math.floor(song.duration);
+		var lm = Math.floor(length / 60);
+		var ls = Math.floor(length % 60);
+		document.getElementById("length").innerHTML = "<b>Length: </b>"+lm+":"+(ls<10? "0":"")+ls;
+		song.addEventListener('ended', function() {
+			if (cpage==pageNumber){document.getElementById(lastXY[1][0]+""+lastXY[2][0]).style.backgroundPosition = '0px 0px';}
+			document.getElementById("time").innerHTML = "<b>Time: </b> 0:00";
+			this.removeEventListener('ended',arguments.callee,false);
+			this.removeEventListener('timeupdate', timeUpdate, false);
+		}, false);
+		song.addEventListener('timeupdate', timeUpdate, false);
+	}
+	queueCount--;
+	document.getElementById("qc").innerHTML = "<b>QC:</b> "+queueCount;
+	this.removeEventListener('ended',arguments.callee,false);
+	if (queueCount!=0){queue[0].addEventListener('ended', playQueue, false);} //adds listener for next song in queue
+}
+function removeQueue(x){ //removes specific clip from queue
+	qlist.splice(x-1,1);
+	queue.splice(x,1);
+	lastXY[0].splice(x,1);
+	lastXY[1].splice(x,1);
+	lastXY[2].splice(x,1);
+	queueCount--;
+	document.getElementById("qc").innerHTML = "<b>QC:</b> "+queueCount;
+	setTable();
+}
+function pageUp(){ //pageNumber +1
+	if (pageNumber<page.length-1){
+		pageNumber++;
+		document.getElementById("pnum").value = (pageNumber+1);
+		sound = page[pageNumber];
+		if (!dMode){
+			document.getElementById("page").innerHTML = "<b>Page #:</b> "+(pageNumber+1); //displays page number
+			for (i=0;i<8;i++){ //changes image color according to audio on new page
+				for (n=0;n<8;n++){
+					if (!sound[i][n]||(!isPaused[pageNumber][i][n]&&sound[i][n].paused)){document.getElementById(i+""+n).style.backgroundPosition = '0px 0px';}
+					else if (isPaused[pageNumber][i][n]){document.getElementById(i+""+n).style.backgroundPosition = '-58px 0px';}
+					else if (!page[pageNumber][i][n].paused){document.getElementById(i+""+n).style.backgroundPosition = '-116px 0px';}
+				}
+			}
+		}else{
+			drawConfig();
+		}
+	}
+}
+function pageDown(){ //pageNumber -1
+	if (pageNumber>0){
+		pageNumber--;
+		document.getElementById("pnum").value = (pageNumber+1);
+		sound = page[pageNumber];
+		if (!dMode){
+			document.getElementById("page").innerHTML = "<b>Page #:</b> "+(pageNumber+1); //displays page number
+			for (i=0;i<8;i++){ //changes image color according to audio on new page
+				for (n=0;n<8;n++){
+					if (!sound[i][n]||(!isPaused[pageNumber][i][n]&&sound[i][n].paused)){document.getElementById(i+""+n).style.backgroundPosition = '0px 0px';}
+					else if (isPaused[pageNumber][i][n]){document.getElementById(i+""+n).style.backgroundPosition = '-58px 0px';}
+					else if (!page[pageNumber][i][n].paused){document.getElementById(i+""+n).style.backgroundPosition = '-116px 0px';}
+				}
+			}
+		}else{
+			drawConfig();
+		}
+	}
+}
+function setPage(x){ //sets pageNumber to given value
+	if (x>=0&&x<=page.length-1){
+		pageNumber = x;
+		document.getElementById("pnum").value = (pageNumber+1);
+		sound = page[pageNumber];
+		if (!dMode){
+			document.getElementById("page").innerHTML = "<b>Page #:</b> "+(pageNumber+1); //displays page number
+			for (i=0;i<8;i++){ //changes image color according to audio on new page
+				for (n=0;n<8;n++){
+					if (!sound[i][n]||(!isPaused[pageNumber][i][n]&&sound[i][n].paused)){document.getElementById(i+""+n).style.backgroundPosition = '0px 0px';}
+					else if (isPaused[pageNumber][i][n]){document.getElementById(i+""+n).style.backgroundPosition = '-58px 0px';}
+					else if (!page[pageNumber][i][n].paused){document.getElementById(i+""+n).style.backgroundPosition = '-116px 0px';}
+				}
+			}
+		}else{
+			drawConfig();
+		}
+	}else{document.getElementById("pnum").value = (pageNumber+1);}
+}
+function timeChange(x,y){ //changes current time of all playing clips
+	for (p=0;p<page.length;p++){
+		for (i=0;i<8;i++){
+			for (n=0;n<8;n++){
+				if (page[p][i][n]&&!page[p][i][n].paused){
+					if (y){page[p][i][n].currentTime += x;}
+					else if (!y&&x>=0){page[p][i][n].currentTime = x;}
+				}
+			}
+		}
+	}
+}
+function volumeChange(x,y){ //changes volume of all playing clips
+	var valid = (x>=0&&x<=1);
+	if (y){
+		if(vol+x<1&&vol+x>0){vol+=x}else{if (x>0){vol=1;}else{vol=0;}}
+		mouseD = false;
+	}
+	else if (!y&&valid){
+		vol = x;
+	}
+	for (p=0;p<page.length;p++){
+		for (i=0;i<8;i++){
+			for (n=0;n<8;n++){
+				if (page[p][i][n]&&!page[p][i][n].paused){
+					page[p][i][n].volume = (vol);
+				}
+			}
+		}
+	}
+	knobY = Math.floor(((1-vol.toFixed(2))*444)+30);
+	document.getElementById("volume").innerHTML = "<b>Volume:</b> "+Math.abs(vol * 100).toFixed(0)+'&#37;';
+	document.getElementById("knob").style.marginTop = knobY+"px";
+}
+function setTable(x){ //draws queue list
+	qtable = qlist.join();
+	for(i=1;i<=qlist.length;i++){
+		qtable = qtable.replace(",","");
+		qtable = qtable.replace("Num",i);
+		qtable = qtable.replace("Row",i);
+	}
+	qtable = "<table>".concat(qtable.concat("</table>"));
+	document.getElementById("qlist").innerHTML = qtable;
+	hideRight(false);
+}
+function timeUpdate(){ //called on timeupdate
+	var time = Math.floor(this.currentTime);
+	var m = Math.floor(time / 60);
+	var s = Math.floor(time % 60);
+	document.getElementById("time").innerHTML = "<b>Time: </b>"+m+":"+(s<10? "0":"")+s; //displays new current time
+}
+function changeMode(x){ //changes mode to Column, Row, or Clip
+	mode = x;
+	blur();
+}
+function getMouse(event, x){ //initializes mouseY position on volume slider click
+	if (x&&!mouseD){mouseD = x;mouseY = event.clientY + window.pageYOffset;}
+	else if (!x&&mouseD){mouseD = x;}
+	event.preventDefault ? event.preventDefault() : event.returnValue = false;
+}
+function getOffset(event){ //moves volume slider knob based on mouseY offset
+	if (mouseD&&mouseY!=0){
+		var offset = event.clientY + window.pageYOffset - mouseY;
+		if (knobY+offset>30&&knobY+offset<474){knobY = mouseY - document.getElementById("launchpad").offsetTop-95;}
+		else if (offset<0){knobY = 30;} //100%
+		else if (offset>0){knobY = 474;} //0
+		mouseY += offset;
+		document.getElementById("knob").style.marginTop = knobY+"px";
+		var x =1-((knobY - 30)/444).toFixed(2);
+		volumeChange(x, false);
+	}
+}
+function stop(x,y){ //stops clips based on current mode
+	if (mode=="Column"&&y<8){ //stops all clips in column
+		for (i=0;i<8;i++){
+			if (sound[i][y]&&!sound[i][y].paused){
+				sound[i][y].pause();
+				isPaused[pageNumber][i][y] = false;
+				document.getElementById(i+""+y).style.backgroundPosition = '0px 0px';
+			}
+		}
+	}else if (mode=="Row"||y==8){ //stops all clips in row
+		for (i=0;i<8;i++){
+			if (sound[x][i]&&!sound[x][i].paused){
+				sound[x][i].pause();
+				isPaused[pageNumber][x][i] = false;
+				document.getElementById(x+""+i).style.backgroundPosition = '0px 0px';
+			}
+		}
+	}else{ //stops selected clip only
+		if (sound[x][y]&&!sound[x][y].paused){
+			sound[x][y].pause();
+			isPaused[pageNumber][x][y] = false;
+			document.getElementById(x+""+y).style.backgroundPosition = '0px 0px';
+		}
+	}
+}
+function setRec(x){ //makes record mode true/false
+	if (x=="t"){rec = !rec;}
+	else{rec = x;}
+	if (rec){
+		document.getElementById("record").innerHTML = "<b>Record:</b> Yes"; //displays record mode and new image
+		document.getElementById("recButton").style.backgroundPosition="-192px 0px";
+	}
+	else{
+		document.getElementById("record").innerHTML = "<b>Record:</b> No";
+		document.getElementById("recButton").style.backgroundPosition="-128px 0px";
+		if (recsound[0].length==1){
+			clearRec();
+			alert("Recordings must have more than 1 clip.");
+		}
+	}
+	rectime=0;
+}
+function setRechover(x){ //changes record image onmouseover
+	rechover = x;
+	if (rec&&rechover){document.getElementById("recButton").style.backgroundPosition="-192px 0px";}
+	else if (rec&&!rechover){document.getElementById("recButton").style.backgroundPosition="-64px 0px";}
+	else if (!rec&&rechover){document.getElementById("recButton").style.backgroundPosition="-128px 0px";}
+	else if (!rec&&!rechover){document.getElementById("recButton").style.backgroundPosition="0px 0px";}
+}
+function recPress(){ //changes record image onclick
+	if (rec){document.getElementById("recButton").style.backgroundPosition="-64px 0px";}
+	else{document.getElementById("recButton").style.backgroundPosition="0px 0px";}
+	event.preventDefault ? event.preventDefault() : event.returnValue = false;
+}
+function setRecloop(x){ //makes recorded audio loop true/false
+	recloop = x;
+	blur();
+}
+function record(x,y){ //sets a recorded clip and starts interval
+	if (y<8){recsound[0].push(page[pageNumber][x][y]);}
+	else if (y==8){recsound[0].push(page[pageNumber][x]);}
+	recsound[1].push(rectime);
+	if (rectime==0){var r=setInterval(function(){
+		rectime+=1;
+		if (!rec){clearInterval(r);setRec(false);}
+	}, 10);}
+}
+function playRec(){ //plays recorded clip sequence
+blur();
+if (!rec&&recsound[0][0]){
+recEnd = recsound[1][recsound[1].length-1];
+if (recPlay){
+recPlay = false;
+rectime=0;
+}else{
+var m = 0;
+recPlay = true;
+var r=setInterval(function(){
+if (recloop){m = recsound[0].length-1;}
+else{m = recsound[0].length;}
+for (i=0;i<m;i++){
+if (!recsound[0][i][0]&&rectime==recsound[1][i]){ //if sound is single clip
+recsound[0][i].currentTime=0;
+recsound[0][i].play();
+}else if (recsound[0][i][0]&&rectime==recsound[1][i]){ //if sound is row of clips
+if (i==0&&recloop){
+if (!recsound[0][recsound[0].length-2][0]){recsound[0][recsound[0].length-2].pause();}
+else{
+for (l=0;l<8;l++){
+if (recsound[0][recsound[0].length-2][l]){
+recsound[0][recsound[0].length-2][l].pause();
+}
+}
+}
+}else{
+for (n=0;n<i;n++){
+if (!recsound[0][n][0]){recsound[0][n].pause();}
+else{
+for (l=0;l<8;l++){
+if (recsound[0][n][l]){
+recsound[0][n][l].pause();
+}
+}
+}
+}
+}
+for (n=0;n<8;n++){
+if (recsound[0][i][n]){
+recsound[0][i][n].volume = vol;
+recsound[0][i][n].currentTime = 0;
+recsound[0][i][n].play();
+}
+}
+}
+}
+if (!recpaused){rectime+=1;}
+var p = (rectime/recEnd).toFixed(2)*100;
+updateRecbar(p);
+if (recloop&&recPlay&&rectime>recEnd){rectime=0;}
+else if (!recPlay||rectime>recEnd){clearInterval(r);rectime=0;stopRec();}
+}, 10);
+}
+}
+}
+function stopRec(){ //stops recorded audio
+	recPlay = false;
+	recpaused = false;
+	updateRecbar(0);
+	blur();
+}
+function clearRec(){ //clears recorded audio
+	rectime=0;
+	stopRec();
+	if (recsound[0][0]){
+		recsound = [new Array(), new Array()];
+	}
+}
+function updateRecbar(x){ //changes width of red in record bar
+	document.getElementById("progress").style.width = x+"%";
+}
+function showControls(x){ //displays control page
+	controls = x;
+	if (controls){
+		document.getElementById("opacity").style.display="block";
+		document.getElementById("controls_page").style.display="block";
+		document.getElementById("controls_content").style.display="block";
+	}else if (!controls){
+		document.getElementById("opacity").style.display="none";
+		document.getElementById("controls_page").style.display="none";
+		document.getElementById("controls_content").style.display="none";
+	}
+}
+function blur(){ //exits active input elements
+	if (document.activeElement.nodeName=="INPUT"){document.activeElement.blur();}
+}
+function allowDrop(e){
+	e.preventDefault();
+}
+function drag(e){
+	e.dataTransfer.setData("Text",e.target.id);
+	if (e.target.className=="clone"){lastcp = e.target.parentNode.id;}else{lastcp="";}
+}
+function drop(e){
+	e.preventDefault();
+	var data=e.dataTransfer.getData("Text");
+	var clone = document.getElementById(data).cloneNode(true);
+	clone.setAttribute("src","Content/images/dragged.png");
+	e.target.innerHTML = "";
+	e.target.appendChild(clone);
+	clone.className = "clone";
+	if (lastcp&&!ctrl&&document.getElementById(lastcp).firstChild.className=="clone"){
+		document.getElementById(lastcp).innerHTML="";
+		var s=lastcp;
+		s=s.split(" ");
+		page[pageNumber][s[1]][s[2]].pause();
+		page[pageNumber][s[1]][s[2]] = null;
+		upPos[pageNumber][s[1]][s[2]] = null;
+	}
+	var s=clone.parentNode.id;
+	s=s.split(" ");
+	if (clone.id.search("up")<0){
+		page[pageNumber][s[1]][s[2]] = new Audio(clone.id);
+	}else{
+		var d=clone.id.slice(3);
+		upPos[pageNumber][s[1]][s[2]] = d;
+		page[pageNumber][s[1]][s[2]] = new Audio(upload[0][d]);
+	}
+}
+function enumSongs(){ //enumerates audio list for drag and drop
+	var a = "<table id='dlist'>";
+	for (i=0;i<localsong.length;i++){
+		var s = localsong[i];
+		a += "<tr><td>"+s+"</td><td id='cats'><img src='Content/images/drag.png'id='"+s+"'class='original'draggable='true'ondragstart='drag(event)'onmouseout='dragLeave(this.parentNode)'onmouseover='dragHover(this.parentNode)'onclick='dragPlay(this.parentNode)' /></td></tr>";
+	}
+	a+="</table>";
+	document.getElementById("draglist").innerHTML += a;
+}
+function drawDrag(){ //replaces buttons with drag and drop layout
+	var a = "";
+	for (i=0;i<8;i++){
+		for (x=0;x<8;x++){
+			if (i<7){
+				if (x<7){
+					a += "<span ondrop='drop(event)'ondragover='allowDrop(event)'id='d "+i+" "+x+"'class='pad r b'></span>";
+				}else{
+					a += "<span ondrop='drop(event)'ondragover='allowDrop(event)'id='d "+i+" "+x+"'class='pad b'></span><span onmouseout='leave("+i+",8)'onmouseover='hover("+i+",8)'onmousedown='play("+i+",8)'id='"+i+"8'class='play'></span><br />";
+				}
+			}else{
+				if (x<7){
+					a += "<span ondrop='drop(event)'ondragover='allowDrop(event)'id='d "+i+" "+x+"'class='pad r'></span>";
+				}else{
+					a += "<span ondrop='drop(event)'ondragover='allowDrop(event)'id='d "+i+" "+x+"'class='pad'></span><span onmouseout='leave("+i+",8)'onmouseover='hover("+i+",8)'onmousedown='play("+i+",8)'id='"+i+"8'class='play'></span>";
+				}
+			}
+		}
+	}
+	document.getElementById("drag").innerHTML = a;
+}
+function setDrag(x){ //sets Drag mode
+	if(x!=dMode){
+	if (x!="t"){dMode = x;}else{dMode = !dMode;}
+	stopAll();
+	setPage(0);
+		if (dMode){
+			document.getElementById("tab_info").style.display="none";
+			document.getElementById("queue").style.display="none";
+			document.getElementById("map").style.display="none";
+			document.getElementById("draglist").style.display="block";
+			document.getElementById("drag").style.display="block";
+			document.getElementById("conf").style.display="block";
+			hideLeft(false);
+			hideRight(false);
+			drawConfig();
+		}else{
+			document.getElementById("tab_info").style.display="block";
+			document.getElementById("queue").style.display="block";
+			document.getElementById("map").style.display="block";
+			document.getElementById("draglist").style.display="none";
+			document.getElementById("drag").style.display="none";
+			document.getElementById("conf").style.display="none";
+			hideLeft(false);
+			hideRight(false);
+		}
+	}
+}
+function dragPlay(x){ //plays on button click in drag mode
+	if (x.id=="cats"){
+		if(temp){temp.pause();}
+		if (x.firstChild.id.search("up")<0){
+			temp = new Audio(x.firstChild.id);
+		}else{
+			var d=x.firstChild.id.slice(3);
+			temp = new Audio(upload[0][d]);
+		}
+		temp.volume = vol;
+		temp.play();
+	}else if(!ctrl){
+		var s = x.id;
+		s=s.split(" ");
+		play(s[1],s[2]);
+	}else{
+		var s = x.id;
+		document.getElementById(s).innerHTML = "";
+		s=s.split(" ");
+		page[pageNumber][s[1]][s[2]] = null;
+	}
+}
+function dragHover(x){
+	if(x.id!="cats"){
+		var s = x.id;
+		var n = "";
+		s=s.split(" ");
+		if (!upPos[pageNumber][s[1]][s[2]]){
+			n = page[pageNumber][s[1]][s[2]].currentSrc;
+			n = "<b>Hovered:</b> "+n.slice(n.lastIndexOf("/")+1, n.lastIndexOf("."));
+		}else{
+			n = upload[1][upPos[pageNumber][s[1]][s[2]]];
+			n = "<b>Hovered:</b> "+n.slice(0, n.lastIndexOf("."));
+		}
+		document.getElementById("chsong").innerHTML = n;
+	}
+}
+function dragLeave(x){
+	if(x.id!="cats"){
+		document.getElementById("chsong").innerHTML = "<b>Hovered:</b> none";
+	}
+}
+function drawConfig(){ //draws buttons on page in drag mode
+	var s="";
+	for (i=0;i<8;i++){
+		for (n=0;n<8;n++){
+			if (page[pageNumber][i][n]){
+				if (!upPos[pageNumber][i][n]){
+					s = page[pageNumber][i][n].currentSrc;
+					s = s.slice(s.lastIndexOf("/")+1, s.length);
+				}else{
+					s = "up "+upPos[pageNumber][i][n];
+				}
+				s = "<img src='Content/images/dragged.png'id='"+s+"'class='clone'draggable='true'ondragstart='drag(event)'onmouseout='dragLeave(this.parentNode)'onmouseover='dragHover(this.parentNode)'onclick='dragPlay(this.parentNode)' />";
+				document.getElementById("d "+i+" "+n).innerHTML = s;
+			}else{
+				document.getElementById("d "+i+" "+n).innerHTML = "";
+			}
+		}
+	}
+}
+function addPage(){ //adds page to the end of the slaunchpad
+	blur();
+	if (page.length<64){
+		page.push(blank(null));
+		isPaused.push(blank(false));
+		upPos.push(blank(null));
+		setPage(page.length-1);
+		document.getElementById("pagecount").innerHTML = "<b>Pages:</b> "+page.length;
+	}
+}
+function delPage(){ //deletes current page
+	blur();
+	if (page.length!=1){
+		var x = pageNumber;
+		page.splice(x,1);
+		if (x<page.length){setPage(x);}else{setPage(x-1);}
+		document.getElementById("pagecount").innerHTML = "<b>Pages:</b> "+page.length;
+	}else{alert("You only have 1 page!");}
+}
+function clearPage(){ //clears all clips on page in drag mode
+	blur();
+	page[pageNumber] = blank(null);
+	setPage(pageNumber);
+}
+function blank(x){ //returns array with all objects x
+	a = new Array();
+	for (i=0;i<8;i++){
+		a[i] = new Array();
+		for (n=0;n<8;n++){
+			a[i][n] = x;
+		}
+	}
+	return a;
+}
+function getSound(e){ //sets uploaded sound to URL
+	f = e.target.files[0];
+	var x = document.getElementById("soundfile").value;
+	x = x.slice(x.lastIndexOf("\\")+1,x.length);
+	var reader = new FileReader();
+
+	if (f.type.match(/audio.*/)) {
+		var reader = new FileReader();
+		reader.onload = function(d) {
+			upload[0].push(d.target.result);
+			upload[1].push(x);
+			document.getElementById("dlist").innerHTML += "<tr><td>"+x+"</td><td id='cats'><img src='Content/images/drag.png'id='up "+upCount+"'class='original'draggable='true'ondragstart='drag(event)'onmouseout='dragLeave(this.parentNode)'onmouseover='dragHover(this.parentNode)'onclick='dragPlay(this.parentNode)' /></td></tr>";
+			upCount++;
+			hideLeft(false);
+			alert("File uploaded successfully!");
+		};
+		reader.readAsDataURL(f);
+	}else{alert("You may only upload audio files.");}
+	document.getElementById("soundfile").value = "";
+}
+function clearConf(){ //clears the entire slaunchpad layout
+	blur();
+	if (confirm("This will delete all pages. Continue?")){
+		page = [blank(null)];
+		setPage(0);
+		document.getElementById("pagecount").innerHTML = "<b>Pages:</b> 1";
+	}
+}
+function hideFoot(){ //hides the footer
+	if (!foothide){
+		foothide = true;
+		document.getElementById("footer").style.marginBottom = "-40px";
+		document.getElementById("hidefoot").style.marginBottom = "-40px";
+		document.getElementById("arrow").innerHTML="«";
+	}else{
+		foothide = false;
+		document.getElementById("footer").style.marginBottom = "0px";
+		document.getElementById("hidefoot").style.marginBottom = "0px";
+		document.getElementById("arrow").innerHTML="»";
+	}
+}
+function showFeedback(x){ //brings up Feedback page
+	feedback = x;
+	if (feedback){
+		document.getElementById("opacity").style.display="block";
+		document.getElementById("controls_page").style.display="block";
+		document.getElementById("feedback").style.display="block";
+	}else if (!feedback){
+		document.getElementById("opacity").style.display="none";
+		document.getElementById("controls_page").style.display="none";
+		document.getElementById("feedback").style.display="none";
+	}
+}
+function showWhale(x){ //brings up Feedback page
+	whale = x;
+	if (whale){
+		document.getElementById("opacity").style.display="block";
+		document.getElementById("controls_page").style.display="block";
+		document.getElementById("whale").style.display="block";
+		document.getElementById("whale").firstChild.focus();
+	}else if (!whale){
+		document.getElementById("opacity").style.display="none";
+		document.getElementById("controls_page").style.display="none";
+		document.getElementById("whale").style.display="none";
+	}
+}
+function hideLeft(x){ //hides left bar
+	if (x){
+		lefthide = !lefthide;
+		document.getElementById("hideleft").style.transitionDuration="1.5s";
+		document.getElementById("draglist").style.transitionDuration="1.5s";
+		document.getElementById("tab_info").style.transitionDuration="1.5s";
+	}else{
+		document.getElementById("draglist").style.transitionDuration="0s";
+		document.getElementById("tab_info").style.transitionDuration="0s";
+		document.getElementById("hideleft").style.transitionDuration="0s";
+	}
+	if (lefthide){
+		document.getElementById("tab_info").style.marginLeft= -document.getElementById("tab_info").offsetWidth+6+"px";
+		document.getElementById("draglist").style.marginLeft= -document.getElementById("draglist").offsetWidth+6+"px";
+		document.getElementById("hideleft").style.marginLeft="-2px";
+		document.getElementById("hideleft").firstChild.innerHTML="»";
+	}else{
+		document.getElementById("tab_info").style.marginLeft= "0px";
+		document.getElementById("draglist").style.marginLeft= "0px";
+		if (!dMode){document.getElementById("hideleft").style.marginLeft=document.getElementById("tab_info").offsetWidth-8+"px";}
+		else{document.getElementById("hideleft").style.marginLeft=document.getElementById("draglist").offsetWidth-8+"px";}
+		document.getElementById("hideleft").firstChild.innerHTML="«";
+	}
+}
+function hideRight(x){ //hides right bar
+	if (x){
+		righthide = !righthide;
+		document.getElementById("hideright").style.transitionDuration="1.5s";
+		document.getElementById("conf").style.transitionDuration="1.5s";
+		document.getElementById("queue").style.transitionDuration="1.5s";
+	}else{
+		document.getElementById("conf").style.transitionDuration="0s";
+		document.getElementById("queue").style.transitionDuration="0s";
+		document.getElementById("hideright").style.transitionDuration="0s";
+	}
+	if (righthide){
+		document.getElementById("queue").style.marginRight= -document.getElementById("queue").offsetWidth+6+"px";
+		document.getElementById("conf").style.marginRight= -document.getElementById("conf").offsetWidth+6+"px";
+		document.getElementById("hideright").style.marginRight="-2px";
+		document.getElementById("hideright").firstChild.innerHTML="«";
+	}else{
+		document.getElementById("queue").style.marginRight= "0px";
+		document.getElementById("conf").style.marginRight= "0px";
+		if (!dMode){document.getElementById("hideright").style.marginRight=document.getElementById("queue").offsetWidth-8+"px";}
+		else{document.getElementById("hideright").style.marginRight=document.getElementById("conf").offsetWidth-8+"px";}
+		document.getElementById("hideright").firstChild.innerHTML="»";
+	}
+}
+
+
+</script>
+  </head>
+  <body onload="draw();initPause();drawDrag();enumSongs();"bgcolor="white"onkeydown="keyDown(event);"onkeyup="release(event);"onmouseup="getMouse(event, false);"onmousemove="getOffset(event);">
+  <h1>The Slaunchpad 1.6.5 2014 Edition</h1>
+  <div class="draglist"id="draglist"style="display:none;overflow-y:scroll;">
+  <div align="center"><b><u>Clip List</u></b></div>
+  <br />
+  </div>
+  <div class="tab_info"id="tab_info">
+  <div align="center"><b><u>Info</u></b></div>
+  <br />
+  <div id="volume"><b>Volume:</b> 70%</div>
+  <div id="song"><b>Song:</b> none</div>
+  <div id="hsong"><b>Hovered:</b> none</div>
+  <div id="length"><b>Length:</b> 0:00</div>
+  <div id="time"><b>Time:</b> 0:00</div>
+  <div id="shift"><b>Shift:</b> Off</div>
+  <div id="caps"><b>Caps:</b> Off</div>
+  <div id="paused"><b>Paused:</b> No</div>
+  <div id="qmode"><b>Queue Mode:</b> No</div>
+  <div id="smode"><b>Stop Mode:</b> No</div>
+  <div id="qc"><b>QC:</b> 0</div>
+  <div id="pagecount"><b>Pages:</b> 1</div>
+  <div id="page"><b>Page #:</b> 1</div>
+  <div id="mode"><b>Mode:</b> <select id="mode"onchange="changeMode(this.value)">
+  <option>Column
+  <option>Row
+  <option>Clip
+  </select></div>
+  <div id="record"><b>Record:</b> No</div>
+  <div id="recloop"><b>Loop:</b> <input type="checkbox"onchange="setRecloop(this.checked);" /></div>
+  <br />
+  <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+  <h6>optimized for chrome</h6>
+  </div>
+  <div class="queue"id="queue">
+  <div align="center"><b><u>Queue</u></b></div>
+  <br />
+  <div id="qlist">
+  </div>
+  <div id="clearqbutton"align="center">
+  <input type="button"value="Clear Queue"onclick="clearQueue()" />
+  </div>
+  </div>
+  <div class="conf"id="conf"style="display:none;">
+  <div align="center"><b><u>Config Panel</u></b></div>
+  <br />
+  <div id="addpage"align="right"><input type="button"value="Add Page"onclick="addPage()" /></div>
+  <div id="delpage"align="right"><input type="button"value="Delete Page"onclick="delPage()" /></div>
+  <div id="clearpage"align="right"><input type="button"value="Clear Page"onclick="clearPage()" /></div>
+  <div id="clearall"align="right"><input type="button"value="Clear All"onclick="clearConf()" /></div>
+  <div id="chsong"align="right"><b>Hovered:</b> none</div>
+  <div id="upload"align="right"><input type="file"accept="audio/*"name="myfile"id="soundfile"alt="insert an audio file"onchange="getSound(event)"style="width:175px"></div>
+  <br />
+  <div id="doneconf"align="right"><input type="button"value="Finish"onclick="setDrag(false)" /></div>
+  </div>
+  <div class="launchpad"id="launchpad">
+  <span>
+  <span class="tl"style="width:62px;height:95px;background-color:black;border-top-left-radius:10px;"></span>
+  <span class="top"style="width:534px;height:95px;">
+  <span class="tt"></span><br />
+  <span class="bl"></span>
+  <span class="pageL"id="pl"onmousedown="pageDown()"></span>
+  <span class="bmid"></span>
+  <span class="pageR"id="pr"onmousedown="pageUp()"></span>
+  <span class="br"></span><br />
+  <span class="tb"></span>
+  </span>
+  <span class="tr"style="width:104px;height:95px;background-color:black;border-top-right-radius:10px;">
+  <table width="104"height="95">
+  <tr><th><input id="pnum"type="number"value="1"onchange="setPage(this.value-1)"style="width:50px;" /></th></tr>
+  </table>
+  </span>
+  <span class="left"id="left"style="width:62px;height:534px;background:url('Content/images/slider.png') 0 0 no-repeat;outline:none;display:block;">
+  <span id="knob"style="width:46px;height:20px;background:url('Content/images/nknob.png') 0 0 no-repeat;outline:none;display:block;margin:166px 8px 50px 8px;"onmousedown="getMouse(event, true);"ondblclick="volumeChange(.7, false);">
+  </span></span>
+  <div id="map"class="map">
+  </div>
+  <div class="drag"id="drag"style="display:none;width:594px;height:534px;background-color:black;"></div>
+  <span class="right"style="width:44px;height:534px;background:url('Content/images/right.png') 0 0 no-repeat;outline:none;display:block;"></span>
+  <span class="bottom"><input type="button"value="Stop"onclick="stopRec();" /><input type="button"value="Play"onclick="playRec();" /><input type="button"value="Clear Recording"onclick="clearRec();" />
+  <span class="recButton"id="recButton"onmousedown="recPress()"onmouseup="setRec('t')"onmouseover="setRechover(true)"onmouseout="setRechover(false)"></span>
+  <span class="recbar"style="border-radius:30px;background-color:white;width:75%;height:10px;margin-left:20px;">
+  <span class="progress"id="progress"style="border-radius:30px;background-color:red;width:0%;height:10px;">&nbsp;</span>
+  </span>
+  </span>
+  </div>
+  <span id="opacity"style="position:fixed;display:none;top:0;left:0;right:0;bottom:0;z-index:5000;background-color:#000;opacity:0.65;"onclick="showControls(false);showFeedback(false);showWhale(false);"></span>
+  <span id="controls_page"style="position:fixed;display:none;top:5%;left:15%;right:15%;bottom:5%;z-index:5001;background-color:#FFF;border-radius:10px;">
+  <div id="controls_content"align="center"style="display:none;height:100%;overflow-y:auto;">
+  <h1>Controls</h1>
+  <span style="width:520px;height:455px;display:block;outline:none;background:url('Content/images/controls.png');"></span>
+  <br />
+  <table width="94%"class="keys"><tr><th>Key</th><th>Function</th><th>Key</th><th>Function</th></tr>
+  <tr><td>(Hold)Shift:</td><td>Control top half of Slaunchpad</td><td>Up:</td><td>Increase Volume by 5%</td></tr>
+  <tr><td>Caps Lock:</td><td>Toggle between top and bottom</td><td>Down:</td><td>Decrease Volume by 5%</td></tr>
+  <tr><td>Space:</td><td>Stop All</td><td>Left:</td><td>Skip ahead 10 seconds</td></tr>
+  <tr><td>(Hold)0:</td><td>Enter Queue Mode</td><td>Right:</td><td>Go back 10 seconds</td></tr>
+  <tr><td>P:</td><td>Pause</td><td>Page Up:</td><td>Next Page</td></tr>
+  <tr><td>(Hold);:</td><td>Enter Stop Mode</td><td>Page Down:</td><td>Previous Page</td></tr>
+  <tr><td>Ctrl+Click:</td><td>Delete Button(Configure Mode)</td><td>Ctrl+Click+Drag:</td><td>Copy Button(Configure Mode)</td></tr>
+  </table> 
+  </div>
+  <div id="feedback"align="center"style="display:none;height:100%;overflow-y:auto;">
+  <iframe src="feedback.php"frameborder="0"width="100%"height="100%"></iframe>
+  </div>
+  <div id="whale"align="center"style="display:none;height:100%;overflow-y:auto;">
+  <embed width="100%" height="100%" src="whale.swf" />
+  </div>
+  <span id="exit"style="position:fixed;top:6%;right:16%;background-color:#BBB;border-radius:3px;padding:2px;color:#C22;"onclick="showControls(false);showFeedback(false);showWhale(false);"><b>X</b></span>
+  </span>
+  <br />
+  <span id="hidefoot"onclick="hideFoot()"><div class="arrow"id="arrow"align="center">»</div></span>
+  <span onclick="hideLeft(true)"id="hideleft"><div style="margin-top:18px;">«</div></span>
+  <span onclick="hideRight(true)"id="hideright"><div style="margin-top:18px;">»</div></span>
+<div id="footer"><!-- BEGIN FOOTER CONTAINER -->
+
+    <ul id="footer_menu"><!-- Begin Footer Menu -->
+    
+        <li class="imgmenu"><a href="#"></a></li><!-- This Item is an Image -->
+
+        <li onclick="showFeedback(true)"style="cursor:pointer;"><a>Feedback and Support</a><!-- Begin Third Menu Item -->
+        
+        </li><!-- End Third Menu Item -->
+
+        <li onclick="showControls(true)"style="cursor:pointer;"><a>Controls</a><!-- Begin Third Menu Item -->
+        
+        </li><!-- End Third Menu Item -->
+		
+		<li onclick="setDrag('t')"style="cursor:pointer;"><a>Configure</a><!-- Begin Third Menu Item -->
+        
+        </li><!-- End Third Menu Item -->
+		
+		<li onclick="showWhale(true)"style="cursor:pointer;"><a>Visual Effects</a><!-- Begin Third Menu Item -->
+        
+        </li><!-- End Third Menu Item -->
+ 
+    </ul><!-- End Footer Menu -->
+
+<div style="float:right;"><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----">
+<input style="margin-top:6px;"type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">	
+</form></div>
+	
+	<div style="float:right;"><p><a>Help support this project:</a></p></div>
+
+</div><!-- END FOOTER CONTAINER -->
+</body>
+</html>

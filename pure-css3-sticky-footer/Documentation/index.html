@@ -1,0 +1,240 @@
+<!doctype html>  
+<!--[if IE 6 ]><html lang="en-us" class="ie6"> <![endif]-->
+<!--[if IE 7 ]><html lang="en-us" class="ie7"> <![endif]-->
+<!--[if IE 8 ]><html lang="en-us" class="ie8"> <![endif]-->
+<!--[if (gt IE 7)|!(IE)]><!-->
+<html lang="en-us"><!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	
+	<title>Pure CSS3 Sticky Footer</title>
+	
+	<meta name="description" content="Thank you for purchasing my menu. If you have any questions that are beyond the scope of this help file, please feel free to email via my user page contact form here. Thanks so much!">
+	<meta name="author" content="Keliah">
+	<meta name="copyright" content="Keliah">
+	<meta name="generator" content="Documenter v1.3 http://rxa.li/documenter">
+	<meta name="date" content="2011-05-04T00:00:00+02:00">
+	
+	<link rel="stylesheet" href="css/documenter_style.css" media="all">
+	
+	<script src="js/jquery.1.5.1.js"></script>
+	
+	<script src="js/jquery.scrollTo-1.4.2-min.js"></script>
+	<script src="js/jquery.easing.js"></script>
+	
+	<link rel="stylesheet" href="css/shDocumenter.css" media="screen">
+	<script src="js/shCore.js"></script>
+	<script src="js/shBrushCss.js"></script>
+	<script src="js/shBrushXml.js"></script>
+	<script>SyntaxHighlighter.defaults['toolbar'] = false;SyntaxHighlighter.all();</script>
+
+	<script>document.createElement('section');var duration=500,easing='swing';</script>
+	<script src="js/script.js"></script>
+	
+	<style>
+		html{background-color:#FFFFFF;color:#383838;}
+		::-moz-selection{background:#444444;color:#DDDDDD;}
+		::selection{background:#444444;color:#DDDDDD;}
+		#documenter_sidebar #documenter_logo{background-image:url(assets/images/image_1.jpg);}
+		a{color:#0000FF;}
+		hr{border-top:1px solid #EBEBEB;border-bottom:1px solid #FFFFFF;}
+		#documenter_sidebar, #documenter_sidebar ol a{background-color:#DDDDDD;color:#222222;}
+		#documenter_sidebar ol a{-webkit-text-shadow:1px 1px 0px #EEEEEE;-moz-text-shadow:1px 1px 0px #EEEEEE;text-shadow:1px 1px 0px #EEEEEE;}
+		#documenter_sidebar ol{border-top:1px solid #AAAAAA;}
+		#documenter_sidebar ol a{border-top:1px solid #EEEEEE;border-bottom:1px solid #AAAAAA;color:#444444;}
+		#documenter_sidebar ol a:hover{background:#444444;color:#DDDDDD;border-top:1px solid #444444;}
+		#documenter_sidebar ol a.current{background:#444444;color:#DDDDDD;border-top:1px solid #444444;}
+		#documenter_copyright{display:block !important;visibility:visible !important;}
+	</style>
+	
+</head>
+<body>
+	<div id="documenter_sidebar">
+		<a href="#documenter_cover" id="documenter_logo"></a>
+		<ol id="documenter_nav">
+			<li><a class="current" href="#documenter_cover">Start</a></li>
+			<li><a href="#changelog">Changelog</a></li>
+			<li><a href="#html_structure">HTML Structure</a></li>
+			<li><a href="#css_files_and_structure">CSS Files and Structure</a></li>
+			<li><a href="#sources_and_credits">Sources and Credits</a></li>
+
+		</ol>
+		<div id="documenter_copyright">Copyright Keliah 2011<br>
+		made with the <a href="http://rxa.li/documenter">Documenter v1.3</a> 
+		</div>
+	</div>
+	<div id="documenter_content">
+	<section id="documenter_cover"><h1>Pure CSS3 Sticky Footer</h1><hr><ul><li>Created: 10/02/2010</li><li>Latest Update: 06/06/2011</li><li>By: Keliah</li><li><a href=""></a></li></ul><p>Thank you for purchasing my item. If you have any questions that are beyond the scope of this help file, please feel free to email via my <a href="http://codecanyon.net/user/Keliah">user page contact form here</a>. Thanks so much!</p></section><section id="changelog">
+	<h3>Changelog</h3><hr class="notop">
+<h5>
+	06/06/2011 - Version 1.4</h5>
+<ul>
+	<li>
+		Removed the reset CSS which was not necessary</li>
+	<li>
+		Made some minor changes to the CSS</li>
+</ul>
+<h5>
+	03/28/2011 - Version 1.3</h5>
+<ul>
+	<li>
+		Fixed the "Home" item issue</li>
+</ul>
+<h5>
+	11/10/2010 - Version 1.2</h5>
+<ul>
+	<li>
+		Re-enabled IE6 compatibility</li>
+</ul>
+<h5>
+	10/14/2010 – Version 1.1</h5>
+<ul>
+	<li>
+		More specific CSS classes, so they don't overwrite your existing stylings</li>
+	<li>
+		Moved the reset in a separate CSS file</li>
+</ul>
+</section>
+
+<section id="html_structure">
+	<h3>HTML Structure</h3><hr class="notop">
+	<p>Please note that in each folder HTML files are exactly the same. This footer has a fixed layout based upon the 960gs grid.</p>
+    <p>You probably have heard or used drop down menus, here the principle is the same with the difference that the content appears above the menu links.</p>
+    <p>Let's begin with the containers available for the "drop ups", you can use from the smallest (140px) to the largest (420px) container. Then, within these containers, you can organize your content in 1, 2, or 3 columns.</p>
+    <p>For easier understanding, we'll use the regular expression "drop downs".</p>
+
+<h4>
+	SETTING A CONTAINER</h4>
+<p>
+	These containers must be placed within a menu list item as follows :</p>
+<pre class="brush: html">
+&lt;li&gt; &lt;a href="yourlink"&gt;yourlink&lt;/a&gt;
+
+    CONTAINER COMES HERE
+
+&lt;/li&gt;
+</pre>    
+
+<p>And here is the list of the containers available :</p>
+<pre class="brush: html">
+&lt;div class="dropdown_3columns"&gt;
+    CONTENT IN 1, 2 OR 3 COLUMNS
+&lt;/div&gt;
+
+&lt;div class="dropdown_2columns"&gt;
+    CONTENT IN 1 OR 2 COLUMNS
+&lt;/div&gt;
+
+&lt;div class="dropdown_1column"&gt;
+    CONTENT IN 1 COLUMN
+&lt;/div&gt;
+</pre>
+
+<h4>
+	ORGANIZING THE CONTENT INTO COLUMNS</h4>
+
+<p>Then, within these containers, you can use from 1 up to 3 columns, but don't forget to check if your container is large enough for the columns you include. You'll notice that they are smaller than the containers, it's because of the paddings so the content doesn't stick to the edges.</p>
+<p>Here are the choices available :</p>
+
+<pre class="brush: html">
+&lt;div class="col_1"&gt;
+    HERE COMES YOUR 130 PX WIDTH CONTENT
+&lt;/div&gt;
+
+&lt;div class="col_2"&gt;
+    HERE COMES YOUR 270 PX WIDTH CONTENT
+&lt;/div&gt;
+
+&lt;div class="col_3"&gt;
+    HERE COMES YOUR 410 PX WIDTH CONTENT
+&lt;/div&gt;
+</pre>
+
+<p>&nbsp;
+	</p>
+</section>
+<section id="css_files_and_structure">
+	<h3>CSS Files and Structure</h3><hr class="notop">
+<p>
+	The main file for this footer is <strong>footer.css</strong> and contains all the necessary markup to create your footer. It is divided into 3 parts :</p>
+<pre class="brush: css">
+01 FOOTER - GENERAL STYLES
+02 FOOTER - DROP DOWN MENU (DROP UP)
+03 FOOTER - COLUMNS CONTENT
+</pre>
+<p>
+	If you would like to edit a specific section of the site, simply find the appropriate label in the CSS file, and then scroll down until you find the appropriate style that needs to be edited.</p>
+<p>
+	The &quot;General Styles&quot; section is one of the most important, it defines the footer container, some typography stylings and all necessary code for the social icons with the tooltips.</p>
+<p>
+	The &quot;Drop Down Menu (Drop Up)&quot; part contains all stylings for the drop downs (or drop ups if you prefer) : show / hide properties, left or right alignment and columns properties (you can use from 1 to 3 columns).</p>
+<p>
+	The &quot;Columns Content&quot; part contains specific stylings for all the content appearing in the drop down : text boxes, lists, paragraphs texts...</p>
+
+<p>This item comes with color variants, each one has it's own folder, but you may want to create your own color scheme. For this example, we'll see the black variant : open "footer.css" and scroll down until you find the label <strong>#footer</strong>. This class defines the color of the main footer bar with the following attributes :</p>
+        
+<pre class="brush: css">
+background:#161616;
+border-top: 1px solid #333333;
+    
+/* CSS3 Stylings - Creates the double top border */
+-moz-box-shadow: 0px -1px 0px #161616;
+-webkit-box-shadow:  0px -1px 0px #161616;
+box-shadow:  0px -1px 0px #161616;
+    
+/* CSS3 Stylings - Creates the gradient background */
+background: -moz-linear-gradient(top, #222222, #111111);
+background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#222222), to(#111111));
+</pre>
+<p>The "background" must be set for browsers which don't support CSS3 properties, in this case, we have the color #161616 and this value is overwritten by the CSS3 attributes in the case the user is using a recent browser supporting CSS3, so the 2 last lines define a gradient from the top (color : #222222) to the bottom (color : #111111).</p>
+<p>A border-top is set to match the other colors using #333333.</p>
+<p>All the above properties, as I said before, determine the colors of the footer container.</p>
+<p>Now let's see the menu within the footer, I used a dark color scheme defined with the <strong>#footer_menu li</strong> class :</p>
+<pre class="brush: css">
+border-right:1px solid #111111;
+border-left:1px solid #444444;
+background:#3E3E3E;
+	
+/* CSS3 Stylings - Creates the gradient background */
+background: -moz-linear-gradient(top, #3E3E3E, #313131);
+background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3E3E3E), to(#313131));
+</pre>
+<p>Again, the background color (#3E3E3E) is a fallback color for older browsers, then a lighter gradient is set using the #3E3E3E and #313131 colors. On mouse hover, this gradient is reverted :</p>
+<pre class="brush: css">
+background:#313131;
+/* CSS3 Stylings - Creates the gradient background */
+background: -moz-linear-gradient(top, #313131, #3E3E3E);
+background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#313131), to(#3E3E3E));
+</pre>
+<p>Then we have this same dark scheme used in the drop down (or drop up) with the <strong>#footer_menu li:hover ul.dropup</strong>, <strong>.dropdown_1column</strong>, <strong>.dropdown_2columns</strong> and the <strong>dropdown_3columns</strong> classes :</p>
+<pre class="brush: css">
+background-color:#222222;
+border: 1px solid #111111;
+</pre>      
+
+
+</section>
+<section id="sources_and_credits">
+	<h3>Sources and Credits</h3><hr class="notop">
+<p>
+	I&#39;ve used the following images, icons or other files as listed.</p>
+<ul>
+	<li>
+		<a href="http://960.gs/">960 Grid System</a></li>
+	<li>
+		<a href="http://browse.deviantart.com/?qh=&section=&global=1&q=wood+floor#/d1fqv7y">Wood Texture</a></li>
+	<li>
+		<a href="http://www.iconfinder.com/icondetails/57950/32/home_icon">Home Icon</a></li>
+	<li>
+		<a href="http://www.profimagazin.cz/ikony/socialni-ikony-vcetne-ceskych-linkovacich-sluzeb-ke-stazeni-zdarma">Social Icons</a></li>
+</ul>
+<hr>
+<p>
+	Once again, thank you so much for purchasing this item. As I said at the beginning, I&#39;d be glad to help you if you have any questions relating to this theme. No guarantees, but I&#39;ll do my best to assist. If you have a more general question relating to the items on Codecanyon, you might consider visiting the forums and asking your question in the &quot;Item Discussion&quot; section.</p>
+<p>
+	<strong>Keliah</strong></p>
+</section>
+
+	</div>
+</body>
+</html>

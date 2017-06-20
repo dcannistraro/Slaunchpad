@@ -1,0 +1,662 @@
+
+
+body{
+	font-family:Verdana;
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	user-select:none;
+}
+
+.launchpad{
+	position: absolute;
+	left: 50%;
+	margin-left: -350px;
+	top:50%;
+	z-index:5000;
+	margin-top: -350px;
+	width:700px;
+	height:700px;
+	border: 1px solid #333333;
+	border-radius:10px;
+	box-shadow:  5px 5px 40px #161616;
+}
+
+.launchpad div, .launchpad span{
+	float:left;
+}
+
+.button{
+	outline: none;/* get rid of dotted borders in FireFox */
+	display:block;
+	width:58px;
+	height:58px;
+	background:url("images/white.png") 0 0 no-repeat;
+}
+
+.play{
+	outline: none;/* get rid of dotted borders in FireFox */
+	display:block;
+	width:60px;
+	height:58px;
+	background:url("images/play.png") 0 0 no-repeat;
+}
+
+.button:hover, .button:focus{
+	background-position: -58px 0;
+}
+
+.button:active {
+	background-position: -116px 0;
+}
+
+.play:hover, .play:focus{
+	background-position: -60px 0;
+}
+
+.play:active {
+	background-position: -120px 0;
+}
+
+.Vbox{
+	width:10px;
+	height:58px;
+	background-color:black;
+}
+
+.Hbox{
+	width:594px;
+	height:10px;
+	background-color:black;
+}
+
+.bottom{
+	width:700px;
+	height:71px;
+	background-color:black;
+	border-bottom-left-radius:10px;
+	border-bottom-right-radius:10px;
+}
+
+.launchpad .map{
+	width:594px;
+	height:534px;
+	margin: 0 auto;
+}
+
+h1{
+	text-align:center;
+}
+
+.pageL{
+	outline: none;/* get rid of dotted borders in FireFox */
+	display:block;
+	width:46px;
+	height:46px;
+	background:url("images/pageL.png") 0 0 no-repeat;
+}
+
+.pageR{
+	outline: none;/* get rid of dotted borders in FireFox */
+	display:block;
+	width:46px;
+	height:46px;
+	background:url("images/pageR.png") 0 0 no-repeat;
+}
+
+.pageL:hover, .pageL:focus, .pageR:hover, .pageR:focus{
+	background-position: -46px 0;
+}
+
+.pageL:active, .pageR:active{
+	background-position: -92px 0;
+}
+
+.tt{
+	outline: none;/* get rid of dotted borders in FireFox */
+	display:block;
+	width:534px;
+	height:39px;
+	background:url("images/tt.png") 0 0 no-repeat;
+}
+
+.tb{
+	outline: none;/* get rid of dotted borders in FireFox */
+	display:block;
+	width:534px;
+	height:10px;
+	background:url("images/tb.png") 0 0 no-repeat;
+}
+
+.bl{
+	outline: none;/* get rid of dotted borders in FireFox */
+	display:block;
+	width:143px;
+	height:46px;
+	background:url("images/bl.png") 0 0 no-repeat;
+}
+
+.bmid{
+	outline: none;/* get rid of dotted borders in FireFox */
+	display:block;
+	width:22px;
+	height:46px;
+	background:url("images/bmid.png") 0 0 no-repeat;
+}
+
+.br{
+	outline: none;/* get rid of dotted borders in FireFox */
+	display:block;
+	width:277px;
+	height:46px;
+	background:url("images/br.png") 0 0 no-repeat;
+}
+
+.recButton{
+	width:64px;
+	height:64px;
+	background:url('images/rec.png') 0 0 no-repeat;
+	outline:none;
+	display:block;
+}
+
+.drag .pad{
+	height:56px;
+	width:56px;
+	background-color:#fff;
+	border:1px solid #aaa;
+	float:left;
+}
+
+.pad.r{
+	margin-right:10px;
+}
+
+.pad.b, .pad.r.b{
+	margin-bottom:10px;
+}
+
+.drag .pad .clone{
+	width:56px;
+	height:56px;
+	font-size:20px;
+}
+
+.keys td, .keys th{
+	border:1px solid black;
+}
+
+#hidefoot{
+	position: fixed;
+	cursor:pointer;
+	border-right:1px solid #111111;
+	border-left:1px solid #444444;
+	border-radius:10px;
+	color:#fff;
+	bottom:35px;
+	margin:0 auto;
+	width:50px;
+	height:15px;
+	left:50%;
+	margin-left:-25px;
+	z-index:1;
+	font-size:12px;
+	background:#3E3E3E;
+	background: -moz-linear-gradient(top, #3E3E3E, #313131);
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3E3E3E), to(#313131));
+	box-shadow:  0px 3px 5px #161616;
+	transition:margin-bottom 1.5s;
+	-webkit-transition:margin-bottom 1.5s;
+	text-shadow: 1px -1px 1px #000;
+}
+
+#hideleft, #hideright{
+	position: fixed;
+	cursor:pointer;
+	border-right:1px solid #111111;
+	border-left:1px solid #444444;
+	border-radius:10px;
+	color:#fff;
+	top:50%;
+	width:12px;
+	height:50px;
+	margin-top:-25px;
+	z-index:1;
+	font-size:12px;
+	background:#3E3E3E;
+	background: -moz-linear-gradient(top, #3E3E3E, #313131);
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3E3E3E), to(#313131));
+	box-shadow:  -3px 0px 5px #161616;
+	text-shadow: 1px 1px 1px #000;
+}
+
+#hideleft{
+	left:0px;
+	margin-left:149px;
+	transition:margin-left 1.5s;
+	-webkit-transition:margin-left 1.5s;
+}
+
+#hideright{
+	right:0px;
+	margin-right:96px;
+	transition:margin-right 1.5s;
+	-webkit-transition:margin-right 1.5s;
+}
+
+#hidefoot:hover, #exit:hover, #hideleft:hover, #hideright:hover{
+	background:#313131;
+	background: -moz-linear-gradient(top, #313131, #3E3E3E);
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#313131), to(#3E3E3E));
+}
+
+.arrow{
+	transform: rotate(90deg);
+	-ms-transform: rotate(90deg); /* IE 9 */
+	-webkit-transform: rotate(90deg); /* Safari and Chrome */
+}
+
+#exit{
+	position:fixed;
+	cursor:pointer;
+	top:6%;
+	right:16%;
+	border-right:1px solid #111111;
+	border-left:1px solid #444444;
+	background:#3E3E3E;
+	background: -moz-linear-gradient(top, #3E3E3E, #313131);
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3E3E3E), to(#313131));
+	box-shadow:  0px 0px 5px #161616;
+	border-radius:3px;
+	padding:2px;
+	color:red;
+	font-size:12px;
+	text-shadow: 1px 1px 1px #000;
+}
+
+.tab_info, .draglist, .queue, .conf{
+	position:fixed;
+	top:50%;
+	margin-top:-350px;
+	background:#161616;
+	color: #ffffff;
+	height:700px;
+	border: 1px solid #333333;
+	text-shadow: 1px 1px 1px #000;
+}
+
+.tab_info, .draglist{
+	left:0%;
+	padding-left:10px;
+	border-radius: 0px 10px 10px 0px;
+	box-shadow:  2px 2px 20px #161616;
+	background: -moz-linear-gradient(right, #222222, #111111);
+	background: -webkit-gradient(linear, 100% 0%, 0% 0%, from(#222222), to(#111111));
+	transition:margin-left 1.5s;
+	-webkit-transition:margin-left 1.5s;
+}
+
+.queue, .conf{
+	right:0%;
+	padding-right:10px;
+	border-radius: 10px 0px 0px 10px;
+	box-shadow:  -2px 2px 20px #161616;
+	background: -moz-linear-gradient(left, #222222, #111111);
+	background: -webkit-gradient(linear, 0% 0%, 100% 0%, from(#222222), to(#111111));
+	transition:margin-right 1.5s;
+	-webkit-transition:margin-right 1.5s;
+}
+
+.tab_info b, .queue b, .conf b, .draglist b, .queue th{
+	color:#FF6600;
+}
+
+/* FOOTER STYLINGS */
+
+#footer {
+	position: fixed;
+	bottom: 0px;
+	margin:0 auto;
+	width: 960px;
+	left:50%;
+	margin-left:-490px;
+	margin-bottom:0px;
+	height: 40px;
+	background:#161616;
+	border-top: 1px solid #333333;
+	padding:0px 10px 0px 10px;
+	font-family:Arial, Helvetica, sans-serif;
+	text-shadow: 1px 1px 1px #000;
+	transition:margin-bottom 1.5s;
+	-webkit-transition:margin-bottom 1.5s;
+	
+	/* CSS3 Stylings - Creates the double top border */
+	-moz-box-shadow: 0px -1px 0px #161616;
+	-webkit-box-shadow:  0px -1px 0px #161616;
+    box-shadow:  0px -1px 0px #161616;
+	
+	/* CSS3 Rounded Corners */
+	-moz-border-radius: 10px 10px 0px 0px;
+	-webkit-border-radius: 10px 10px 0px 0px;
+	border-radius: 10px 10px 0px 0px;
+	
+	/* CSS3 Stylings - Creates the gradient background */
+	background: -moz-linear-gradient(top, #222222, #111111);
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#222222), to(#111111));
+}
+
+/* General typography stylings, paragraphs and H2 tags */
+
+#footer h2 {
+	font-size:24px;
+	line-height:24px;
+	color:#FF6600;
+	letter-spacing:-1px;
+	font-weight:400;
+	padding:0px 10px 0px 10px;
+	margin:12px 0;
+}
+#footer p {
+	color:#cccccc;
+	font-size:12px;
+	padding:0 10px 0 10px;
+	line-height:18px;
+	float:left;
+	margin:10px 0;
+}
+#footer img {
+	border:none;
+}
+#footer a {
+	color:#FF6600;
+	text-decoration:none;
+}
+#footer li ul {
+	list-style:none;
+	padding:0;
+	margin:0 0 12px 0;
+}
+
+#footer .strong { /* Forcing a bold text */
+	font-weight:bold;
+}
+#footer .italic { /* Forcing an italic text */
+	font-style:italic;
+}
+.clear { /* Use this class between rows of content when you use columns */
+	clear: both;
+	display: block;
+	overflow: hidden;
+	visibility: hidden;
+	width: 0;
+	height: 0;
+}
+
+/* Images containers */
+
+#footer .imgshadow { /* Better style on dark background */
+	background:#FFFFFE;
+	padding:4px; /* Makes the light borders thanks to the background color */
+	border:1px solid #333333;
+	margin-top:5px;
+	/* CSS3 shadow */
+	-moz-box-shadow:0px 0px 5px #000000;
+	-webkit-box-shadow:0px 0px 5px #000000;
+	box-shadow:0px 0px 5px #000000;
+}
+#footer .img_left { /* Image sticks to the left */
+	width:auto;
+	float:left;
+	margin:5px 15px 5px 0px;
+}
+#footer .img_right { /* Image sticks to the right */
+	width:auto;
+	float:right;
+	margin:5px 0px 5px 15px;
+}
+
+/* Black background text box */
+
+#footer .black_box {
+	background-color:#111111;
+	padding:4px 6px 4px 6px;
+	margin-bottom:6px;
+
+	/* CSS 3 Rounded Corners */
+	-moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+	/* CSS 3 Inset Shadow */
+	-webkit-box-shadow:inset 0 0 5px #000000;
+	-moz-box-shadow:inset 0 0 5px #000000;
+	box-shadow:inset 0 0 5px #000000;
+}
+
+/* Social Icons */
+
+#footer #social {
+	float:right; /* Positionning of the social icons container */
+	width:auto;
+	margin:5px 15px 0px;
+	padding:0px;
+	overflow:hidden;
+}
+#footer #social li {
+	margin-right:12px; /* 12px is the space between each one of them */
+	_margin-right:0px; /* IE6 only */
+	float:left;
+	width:24px;
+	padding:0px;
+	height:32px;
+	list-style:none;
+}
+#footer #social li:hover {
+	margin-top:-1px; /* Icons move 1px up on hover, you can remove this if you don't like */
+}
+
+/* Tooltips for social icons */
+
+a.tooltip:hover {
+	text-decoration:none;
+}
+/* The "span" defines the text appearing on mouse hover, these are basic stylings */
+a.tooltip span {
+	display:none;
+	padding:5px;
+	bottom:44px;
+	position:relative;
+	width:55px;
+	text-align:center;
+	/* CSS3 Rounded Corners */
+	-moz-border-radius: 3px; 
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+}
+a.tooltip:hover span {
+	display:block;
+	position:absolute;
+	border:1px solid #333333;
+	background:#181818;
+	color:#dddddd;
+	font-size:12px;
+	margin-left:-20px;
+}
+
+
+
+/*  _______________________________________
+
+	02 FOOTER - DROP DOWN MENU (DROP UP)
+    _______________________________________  */
+
+
+
+#footer_menu {
+	margin: 0;
+	padding: 0;
+	width:auto;
+}
+#footer_menu li {
+	list-style: none;
+	float: left;
+	font-size:12px;
+	padding: 12px 14px 14px 14px;
+	border-right:1px solid #111111;
+	border-left:1px solid #444444;
+	background:#3E3E3E;
+	
+	/* CSS3 Stylings - Creates the gradient background */
+	background: -moz-linear-gradient(top, #3E3E3E, #313131);
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3E3E3E), to(#313131));
+}
+#footer_menu li:hover {
+	background:#313131;
+	/* CSS3 Stylings - Creates the gradient background */
+	background: -moz-linear-gradient(top, #313131, #3E3E3E);
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#313131), to(#3E3E3E));
+}
+#footer_menu li a {
+   display: block;
+   color: #cccccc;
+   text-decoration: none;
+}
+#footer_menu li a:hover {
+   color: #ffffff;
+}
+#footer_menu .imgmenu { /* Used for the home item, text is here hidden and replaced by an image */
+    padding:5px 8px 0px 8px;
+    border:none;
+    background:none;
+}
+#footer_menu .imgmenu a { /* Used for the home item, text is here hidden and replaced by an image */
+    background:url("img/home.png") top left no-repeat;
+    width:36px;
+    height:30px;
+}
+#footer_menu li.imgmenu:hover {
+    background:none;
+}
+#footer_menu li.imgmenu a:hover {
+    background:url("img/home2.png") top left no-repeat;
+}
+
+/* Drop Up */
+
+/* You may have heard about drop down menus, the principle is here the same except that
+   the content is going up instead of down */
+   
+#footer_menu li ul.dropup {
+   display: none; 
+   width: 10em; /* Width for Opera */
+}
+#footer_menu li:hover ul.dropup  {
+	display: block;
+	position: absolute;
+	margin: 0 0 0 -16px;
+	bottom:40px; /* Distance to the bottom of the browser */
+	background-color:#222222;
+	border: 1px solid #111111;
+	border-bottom:none;
+
+	/* CSS3 Stylings - Rounded Corners */
+	-moz-border-radius: 7px 7px 0px 0px;
+	-webkit-border-radius: 7px 7px 0px 0px;
+	border-radius: 7px 7px 0px 0px;
+}
+#footer_menu li:hover li { /* Drop up default lists */
+	float: none;
+	background:none;
+	border:none;
+	border-bottom:1px solid #161616;
+	padding:12px 10px 12px 10px;
+}
+#footer_menu li:hover a {
+	color: #aaaaaa;
+}
+#footer_menu li:hover a:hover {
+	color: #eeeeee;
+}
+#footer_menu li:hover p {
+	margin:6px 0;
+}
+
+/* Right Panel */
+
+#footer_menu .right { /* Use the right class to push the content to the right */
+	float:right;
+	right:10px;
+}
+
+
+
+/*  _______________________________________
+
+	03 FOOTER - COLUMNS CONTENT
+    _______________________________________  */
+
+
+
+/* Following the principles of the 960 grid, we define here 3 containers
+   which can contain from 1 to 3 columns */
+   
+#footer .dropdown_1column, 
+#footer .dropdown_2columns, 
+#footer .dropdown_3columns {
+	margin:4px auto;
+	position:absolute;
+	padding:10px 5px 10px 5px;
+	display:none;
+	text-align:left;
+}
+
+/* Drop Downs Sizes */
+
+#footer .dropdown_1column {width: 140px;}
+#footer .dropdown_2columns {width: 280px;}
+#footer .dropdown_3columns {width: 420px;}
+
+/* Showing Drop Down on Mouse Hover - Left aligned */
+
+#footer_menu li:hover .dropdown_1column, 
+#footer_menu li:hover .dropdown_2columns, 
+#footer_menu li:hover .dropdown_3columns {
+	display: block;
+	position: absolute;
+	margin: 0 0 0 -16px;
+	bottom:40px;
+	background-color:#222222;
+	border: 1px solid #111111;
+
+	/* CSS3 Stylings - Rounded Corners */
+	-moz-border-radius: 7px 7px 0px 0px;
+	-webkit-border-radius: 7px 7px 0px 0px;
+	border-radius: 7px 7px 0px 0px;
+}
+
+/* Columns sizes, they have to be placed within a dropdown_columns DIV */
+
+#footer .col_1,
+#footer .col_2,
+#footer .col_3 {
+	display:inline;
+	float: left;
+	position: relative;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+#footer .col_1 {width:130px;}
+#footer .col_2 {width:270px;}
+#footer .col_3 {width:410px;}
+
+/* Lists stylings */
+
+#footer_menu li ul.simple { /* Reset stylings for other lists inside columns */
+	margin-left:5px;
+}
+#footer_menu li ul.simple li {
+	border:none;
+	padding:0px;
+	width:120px;
+	line-height:24px;
+	margin-left:5px;
+}
